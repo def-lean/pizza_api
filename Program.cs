@@ -35,8 +35,15 @@ app.MapGet("/pizza/order", async(PizzaDb db,string? sortBy, string? sortOrder)=>
         "price" => sortOrder?.ToLower() == "desc" ? query.OrderByDescending(p => p.Price) : query.OrderBy(p => p.Price),
         _ => query
     };
-    var pizzas = await query.ToListAsync();
-    return Results.Ok(pizzas);  
+    var pizzasDto = await query.Select(p => new PizzaDto
+    {
+        Id = p.Id,
+        Name = p.Name,
+        Description = p.Description,
+        Price = p.Price,
+        IsAvailable = p.IsAvailable
+    }).ToListAsync();
+    return Results.Ok(pizzasDto);  
 });
 app.MapPost("/pizza", async (PizzaDb db, PizzaDto pizzaDto) =>
 {
