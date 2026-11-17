@@ -22,7 +22,7 @@ app.MapGet("/pizzas", async (PizzaDb db, string? search, bool? isAvailable) =>
 {
     var pizzas = await db.Pizzas
         .Where(p => string.IsNullOrEmpty(search) || (p.Name != null && p.Name.Contains(search)) || (isAvailable.HasValue && p.IsAvailable == isAvailable.Value))
-        .Select(p => new Pizza { Id = p.Id, Name = p.Name, Description = p.Description, Price = p.Price, IsAvailable = p.IsAvailable })
+        .Select(p => new PizzaDto { Id = p.Id, Name = p.Name, Description = p.Description, Price = p.Price, IsAvailable = p.IsAvailable })
         .ToListAsync();
     return Results.Ok(pizzas);
 });
