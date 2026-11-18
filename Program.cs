@@ -15,14 +15,34 @@ app.MapGet("/", () => "Hello World!");
 
 app.MapGet("/pizza/{id}", async (PizzaDb db, int id) =>
 {
-    var pizza = await db.Pizzas.Where(p => p.Id == id).Select(p => new PizzaDto{ Id = p.Id, Name = p.Name, Description = p.Description, Price = p.Price, IsAvailable = p.IsAvailable }).FirstOrDefaultAsync();
+    var pizza = await db.Pizzas.Where(p => p.Id == id).Select(p => new PizzaDto{ Id = p.Id, Name = p.Name, Description = p.Description ?? string.Empty, Price = p.Price, IsAvailable = p.IsAvailable }).FirstOrDefaultAsync();
     return pizza is not null ? Results.Ok(pizza) : Results.NotFound();
+});
+app.MapGet("/pizza", async (PizzaDb db) =>
+{
+    var pizzas = await db.Pizzas.Include(p => p.Ingredients).Select(p => new PizzaDto 
+        { 
+            Id = p.Id, 
+            Name = p.Name, 
+            Description = p.Description ?? string.Empty, 
+            Price = p.Price, 
+            IsAvailable = p.IsAvailable,
+            Ingredients = p.Ingredients.Select(i => new IngredientDto 
+            {
+                Id = i.Id,
+                Name = i.Name,
+                Quantity = i.Quantity
+            }).ToList()
+        })
+        .ToListAsync();
+
+    return Results.Ok(pizzas);
 });
 app.MapGet("/pizzas", async (PizzaDb db, string? search, bool? isAvailable) =>
 {
     var pizzas = await db.Pizzas
         .Where(p => string.IsNullOrEmpty(search) || (p.Name != null && p.Name.Contains(search)) || (isAvailable.HasValue && p.IsAvailable == isAvailable.Value))
-        .Select(p => new PizzaDto { Id = p.Id, Name = p.Name, Description = p.Description, Price = p.Price, IsAvailable = p.IsAvailable })
+        .Select(p => new PizzaDto { Id = p.Id, Name = p.Name, Description = p.Description ?? string.Empty, Price = p.Price, IsAvailable = p.IsAvailable })
         .ToListAsync();
     return Results.Ok(pizzas);
 });
@@ -39,7 +59,7 @@ app.MapGet("/pizza/order", async(PizzaDb db,string? sortBy, string? sortOrder)=>
     {
         Id = p.Id,
         Name = p.Name,
-        Description = p.Description,
+        Description = p.Description ?? string.Empty,
         Price = p.Price,
         IsAvailable = p.IsAvailable
     }).ToListAsync();
