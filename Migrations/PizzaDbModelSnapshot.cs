@@ -28,7 +28,7 @@ namespace PizzaStore.Migrations
 
                     b.HasIndex("PizzasId");
 
-                    b.ToTable("IngredientPizza");
+                    b.ToTable("PizzaIngredients", (string)null);
                 });
 
             modelBuilder.Entity("PizzaStore.Models.Ingredient", b =>
@@ -46,7 +46,7 @@ namespace PizzaStore.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Ingredient");
+                    b.ToTable("Ingredients");
                 });
 
             modelBuilder.Entity("PizzaStore.Models.Pizza", b =>
@@ -57,7 +57,7 @@ namespace PizzaStore.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasMaxLength(20)
+                        .HasMaxLength(150)
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsAvailable")
@@ -65,11 +65,10 @@ namespace PizzaStore.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(20)
+                        .HasMaxLength(30)
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Price")
-                        .HasMaxLength(80)
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
